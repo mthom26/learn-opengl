@@ -4,11 +4,13 @@ use luminance::{
     shader::program::Program,
     tess::{Mode, TessBuilder},
 };
-use luminance_derive::{Semantics, Vertex};
 use luminance_glutin::{
     ElementState, Event, GlutinSurface, KeyboardInput, Surface, VirtualKeyCode, WindowDim,
     WindowEvent, WindowOpt,
 };
+
+mod rendering;
+use rendering::{Semantics, Vertex};
 
 const WIDTH: u32 = 800;
 const HEIGHT: u32 = 600;
@@ -16,28 +18,6 @@ const HEIGHT: u32 = 600;
 // Shaders
 const VS: &str = include_str!("../shaders/vertex.glsl");
 const FS: &str = include_str!("../shaders/fragment.glsl");
-
-#[derive(Copy, Clone, Debug, Semantics)]
-pub enum Semantics {
-    #[sem(name = "position", repr = "[f32; 3]", wrapper = "VertexPos")]
-    Position,
-}
-
-#[repr(C)]
-#[derive(Vertex)]
-#[vertex(sem = "Semantics")]
-struct Vertex {
-    pos: VertexPos,
-}
-
-impl Vertex {
-    // Convenience function to build a Vertex
-    fn from(pos: [f32; 3]) -> Self {
-        Vertex {
-            pos: VertexPos::new(pos),
-        }
-    }
-}
 
 fn main() {
     let mut surface = GlutinSurface::new(
