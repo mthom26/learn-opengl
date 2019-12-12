@@ -1,4 +1,4 @@
-use std::time::Instant;
+use std::{path::Path, time::Instant};
 
 use luminance::{
     context::GraphicsContext,
@@ -13,6 +13,8 @@ use luminance_glutin::{
 
 mod rendering;
 use rendering::{Semantics, ShaderInterface, Vertex};
+mod utils;
+use utils::{load_texture_rgb, load_texture_rgba};
 
 const WIDTH: u32 = 800;
 const HEIGHT: u32 = 600;
@@ -39,9 +41,9 @@ fn main() {
 
     // Triangle
     let vertices = [
-        Vertex::from([0.0, 0.5, 0.0], [230, 30, 30]),
-        Vertex::from([0.5, -0.5, 0.0], [30, 230, 30]),
-        Vertex::from([-0.5, -0.5, 0.0], [30, 30, 230]),
+        Vertex::from([0.0, 0.5, 0.0], [230, 30, 30], [0.0, 0.0]),
+        Vertex::from([0.5, -0.5, 0.0], [30, 230, 30], [0.0, 0.0]),
+        Vertex::from([-0.5, -0.5, 0.0], [30, 30, 230], [0.0, 0.0]),
     ];
 
     let triangle = TessBuilder::new(&mut surface)
@@ -49,6 +51,26 @@ fn main() {
         .set_mode(Mode::Triangle)
         .build()
         .unwrap();
+
+    // Quad
+    let quad_vertices = [
+        Vertex::from([-0.5, -0.5, 0.0], [255, 0, 0], [0.0, 0.0]), // Bottom left
+        Vertex::from([0.5, -0.5, 0.0], [0, 255, 0], [1.0, 0.0]),  // Bottom right
+        Vertex::from([0.5, 0.5, 0.0], [255, 255, 0], [1.0, 1.0]), // Top right
+        Vertex::from([-0.5, 0.5, 0.0], [30, 30, 255], [0.0, 1.0]), // Top left
+    ];
+
+    let quad = TessBuilder::new(&mut surface)
+        .add_vertices(quad_vertices)
+        .set_mode(Mode::TriangleFan)
+        .build()
+        .unwrap();
+
+    // Load textures
+    let (tex, _width, _height) =
+        load_texture_rgb(&mut surface, Path::new("assets/textures/container.jpg"));
+    let (smiley, _width, _height) =
+        load_texture_rgba(&mut surface, Path::new("assets/textures/awesomeface.png"));
 
     let t_start = Instant::now();
 
@@ -84,13 +106,19 @@ fn main() {
 
         surface
             .pipeline_builder()
-            .pipeline(&back_buffer, clear_color, |_, mut shd_gate| {
+            .pipeline(&back_buffer, clear_color, |pipeline, mut shd_gate| {
+                let bound_tex = pipeline.bind_texture(&tex);
+                let bound_smiley = pipeline.bind_texture(&smiley);
+
                 shd_gate.shade(&program, |iface, mut rdr_gate| {
                     // Update the time uniform
                     iface.time.update(t);
+                    // Update textures
+                    iface.tex.update(&bound_tex);
+                    iface.tex_smiley.update(&bound_smiley);
 
                     rdr_gate.render(RenderState::default(), |mut tess_gate| {
-                        tess_gate.render(&triangle);
+                        tess_gate.render(&quad);
                     });
                 });
             });
