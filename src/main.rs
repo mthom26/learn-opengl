@@ -7,7 +7,8 @@ use luminance_glutin::{
 };
 
 use ultraviolet::{
-    mat::Mat4, projection::rh_yup::perspective_gl, rotor::Rotor3, transform::Similarity3, vec::Vec3,
+    bivec::Bivec3, mat::Mat4, projection::rh_yup::perspective_gl, rotor::Rotor3,
+    transform::Similarity3, vec::Vec3,
 };
 
 mod rendering;
@@ -15,7 +16,7 @@ use rendering::{Semantics, ShaderInterface};
 mod utils;
 use utils::{convert_mat4, load_texture_rgb, load_texture_rgba};
 mod shapes;
-use shapes::{quad, triangle};
+use shapes::{cube, quad, triangle};
 
 const WIDTH: u32 = 800;
 const HEIGHT: u32 = 600;
@@ -44,7 +45,10 @@ fn main() {
     let _triangle = triangle(&mut surface, None);
 
     // Quad
-    let quad = quad(&mut surface, None);
+    let _quad = quad(&mut surface, None);
+
+    // Cube
+    let cube = cube(&mut surface, None);
 
     // Load textures
     let (tex, _width, _height) =
@@ -97,18 +101,20 @@ fn main() {
         let proj_mat = convert_mat4(projection);
         //-------------------------------------- -//
 
-        //--- Update transform state for quad ---//
-        // Rotate around the z-axis
-        let angle: f32 = -55.0;
-        let rot = Rotor3::from_rotation_yz(angle.to_radians());
+        //--- Update transform state for cube ---//
+        let angle: f32 = t_start.elapsed().as_millis() as f32 / 1000.0 * 40.0;
+        let rot_vec = Vec3::new(0.5, -1.0, 0.0).normalized(); // Rotation axis
+        let bi_vec = Bivec3::from_normalized_axis(rot_vec);
+        let rot = Rotor3::from_angle_plane(angle.to_radians(), bi_vec);
+
         let _scale = 0.6;
-        let translate = Vec3::new(0.0, -0.0, 0.0);
+        let translate = Vec3::new(0.0, 0.0, 0.0);
 
         let mut sim = Similarity3::identity();
         // sim.prepend_scaling(scale); // Scaling not working here
         sim.prepend_rotation(rot);
         sim.append_translation(translate);
-        let trans_mat = convert_mat4(sim.into_homogeneous_matrix());
+        let model_mat = convert_mat4(sim.into_homogeneous_matrix());
         //---------------------------------------//
 
         // Rendering
@@ -125,12 +131,12 @@ fn main() {
                     iface.tex.update(&bound_tex);
                     iface.tex_smiley.update(&bound_smiley);
                     // Update model, view and projection matrices
-                    iface.model.update(trans_mat);
+                    iface.model.update(model_mat);
                     iface.view.update(view_mat);
                     iface.proj.update(proj_mat);
 
                     rdr_gate.render(RenderState::default(), |mut tess_gate| {
-                        tess_gate.render(&quad);
+                        tess_gate.render(&cube);
                     });
                 });
             });
