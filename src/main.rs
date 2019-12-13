@@ -6,10 +6,12 @@ use luminance_glutin::{
     WindowEvent, WindowOpt,
 };
 
+use ultraviolet::{rotor::Rotor3, transform::Similarity3, vec::Vec3};
+
 mod rendering;
 use rendering::{Semantics, ShaderInterface};
 mod utils;
-use utils::{load_texture_rgb, load_texture_rgba};
+use utils::{convert_mat4, load_texture_rgb, load_texture_rgba};
 mod shapes;
 use shapes::{quad, triangle};
 
@@ -72,7 +74,7 @@ fn main() {
             }
         }
 
-        // Rendering
+        // Update state
         let clear_color = [0.2, 0.3, 0.3, 1.0];
         let t = {
             // Value varies from 0.0 to 1.0
@@ -80,6 +82,21 @@ fn main() {
             t.sin().abs()
         };
 
+        //--- Update transform state for quad ---//
+        let angle = t_start.elapsed().as_millis() as f32 / 1000.0;
+        // Rotate around the z-axis
+        let rot = Rotor3::from_rotation_xy(angle.to_radians() * 20.0);
+        let scale = 0.6;
+        let translate = Vec3::new(0.3, -0.3, 0.0);
+
+        let mut sim = Similarity3::identity();
+        // sim.prepend_scaling(scale); // Scaling not working here
+        sim.prepend_rotation(rot);
+        sim.append_translation(translate);
+        let mat = convert_mat4(sim.into_homogeneous_matrix(), scale);
+        //---------------------------------------//
+
+        // Rendering
         surface
             .pipeline_builder()
             .pipeline(&back_buffer, clear_color, |pipeline, mut shd_gate| {
@@ -92,6 +109,8 @@ fn main() {
                     // Update textures
                     iface.tex.update(&bound_tex);
                     iface.tex_smiley.update(&bound_smiley);
+                    // Update transform
+                    iface.trans.update(mat);
 
                     rdr_gate.render(RenderState::default(), |mut tess_gate| {
                         tess_gate.render(&quad);

@@ -1,4 +1,5 @@
 use luminance::{
+    linear::M44,
     pipeline::BoundTexture,
     pixel::NormUnsigned,
     shader::program::Uniform,
@@ -45,4 +46,6 @@ pub struct ShaderInterface {
     pub time: Uniform<f32>,
     pub tex: Uniform<&'static BoundTexture<'static, Flat, Dim2, NormUnsigned>>,
     pub tex_smiley: Uniform<&'static BoundTexture<'static, Flat, Dim2, NormUnsigned>>,
+    #[uniform(unbound)]
+    pub trans: Uniform<M44>,
 }
