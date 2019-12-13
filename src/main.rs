@@ -1,20 +1,17 @@
 use std::{path::Path, time::Instant};
 
-use luminance::{
-    context::GraphicsContext,
-    render_state::RenderState,
-    shader::program::Program,
-    tess::{Mode, TessBuilder},
-};
+use luminance::{context::GraphicsContext, render_state::RenderState, shader::program::Program};
 use luminance_glutin::{
     ElementState, Event, GlutinSurface, KeyboardInput, Surface, VirtualKeyCode, WindowDim,
     WindowEvent, WindowOpt,
 };
 
 mod rendering;
-use rendering::{Semantics, ShaderInterface, Vertex};
+use rendering::{Semantics, ShaderInterface};
 mod utils;
 use utils::{load_texture_rgb, load_texture_rgba};
+mod shapes;
+use shapes::{quad, triangle};
 
 const WIDTH: u32 = 800;
 const HEIGHT: u32 = 600;
@@ -40,31 +37,10 @@ fn main() {
             .ignore_warnings();
 
     // Triangle
-    let vertices = [
-        Vertex::from([0.0, 0.5, 0.0], [230, 30, 30], [0.0, 0.0]),
-        Vertex::from([0.5, -0.5, 0.0], [30, 230, 30], [0.0, 0.0]),
-        Vertex::from([-0.5, -0.5, 0.0], [30, 30, 230], [0.0, 0.0]),
-    ];
-
-    let triangle = TessBuilder::new(&mut surface)
-        .add_vertices(vertices)
-        .set_mode(Mode::Triangle)
-        .build()
-        .unwrap();
+    let _triangle = triangle(&mut surface, None);
 
     // Quad
-    let quad_vertices = [
-        Vertex::from([-0.5, -0.5, 0.0], [255, 0, 0], [0.0, 0.0]), // Bottom left
-        Vertex::from([0.5, -0.5, 0.0], [0, 255, 0], [1.0, 0.0]),  // Bottom right
-        Vertex::from([0.5, 0.5, 0.0], [255, 255, 0], [1.0, 1.0]), // Top right
-        Vertex::from([-0.5, 0.5, 0.0], [30, 30, 255], [0.0, 1.0]), // Top left
-    ];
-
-    let quad = TessBuilder::new(&mut surface)
-        .add_vertices(quad_vertices)
-        .set_mode(Mode::TriangleFan)
-        .build()
-        .unwrap();
+    let quad = quad(&mut surface, None);
 
     // Load textures
     let (tex, _width, _height) =
