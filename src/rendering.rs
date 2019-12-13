@@ -47,5 +47,7 @@ pub struct ShaderInterface {
     pub tex: Uniform<&'static BoundTexture<'static, Flat, Dim2, NormUnsigned>>,
     pub tex_smiley: Uniform<&'static BoundTexture<'static, Flat, Dim2, NormUnsigned>>,
     #[uniform(unbound)]
-    pub trans: Uniform<M44>,
+    pub model: Uniform<M44>,
+    pub view: Uniform<M44>,
+    pub proj: Uniform<M44>,
 }
