@@ -11,8 +11,8 @@ use luminance_derive::{Semantics, UniformInterface, Vertex};
 pub enum Semantics {
     #[sem(name = "position", repr = "[f32; 3]", wrapper = "VertexPos")]
     Position,
-    #[sem(name = "color", repr = "[u8; 3]", wrapper = "VertexCol")]
-    Color,
+    #[sem(name = "normal", repr = "[f32; 3]", wrapper = "VertexNormal")]
+    Normal,
     #[sem(name = "tex_coord", repr = "[f32; 2]", wrapper = "VertexTexCoord")]
     TexCoord,
 }
@@ -23,17 +23,17 @@ pub enum Semantics {
 pub struct Vertex {
     pos: VertexPos,
     #[vertex(normalized = "true")]
-    col: VertexCol,
+    normal: VertexNormal,
     #[vertex(normalized = "true")]
     tex_coord: VertexTexCoord,
 }
 
 impl Vertex {
     // Convenience function to build a Vertex
-    pub fn from(pos: [f32; 3], col: [u8; 3], tex_coord: [f32; 2]) -> Self {
+    pub fn from(pos: [f32; 3], normal: [f32; 3], tex_coord: [f32; 2]) -> Self {
         Vertex {
             pos: VertexPos::new(pos),
-            col: VertexCol::new(col),
+            normal: VertexNormal::new(normal),
             tex_coord: VertexTexCoord::new(tex_coord),
         }
     }
@@ -51,4 +51,8 @@ pub struct ShaderInterface {
     pub object_color: Uniform<[f32; 3]>,
     #[uniform(unbound)]
     pub light_color: Uniform<[f32; 3]>,
+    #[uniform(unbound)]
+    pub light_pos: Uniform<[f32; 3]>,
+    #[uniform(unbound)]
+    pub cam_pos: Uniform<[f32; 3]>,
 }

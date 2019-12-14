@@ -83,7 +83,8 @@ fn main() {
         //--- Get view and projection matrices ---//
 
         // Camera and View matrix
-        let cam_pos = Vec3::new(1.2, 2.0, 5.0);
+        let (cam_x, cam_y, cam_z) = (-1.2, 1.1, 5.0);
+        let cam_pos = Vec3::new(cam_x, cam_y, cam_z);
         let look_target = Vec3::new(0.0, 0.0, 0.0);
         let up = Vec3::new(0.0, 1.0, 0.0);
         let view = Mat4::look_at(cam_pos, look_target, up);
@@ -115,12 +116,13 @@ fn main() {
         //---------------------------------------//
 
         //--- Update transform state for lamp ---//
+        let lamp_pos = [t.sin(), t.cos() * 0.5 - 0.2, 1.9];
         let model_mat_lamp = {
             let rot_vec = Vec3::new(0.5, -1.0, 0.0).normalized(); // Rotation axis
             let bi_vec = Bivec3::from_normalized_axis(rot_vec);
             let rot = Rotor3::from_angle_plane(0.0, bi_vec);
 
-            let translate = Vec3::new(1.2, 0.7, 0.5);
+            let translate = Vec3::new(lamp_pos[0], lamp_pos[1], lamp_pos[2]);
 
             let mut sim = Similarity3::identity();
             sim.prepend_rotation(rot);
@@ -143,6 +145,8 @@ fn main() {
                     // Update object and light color
                     iface.object_color.update([1.0, 0.5, 0.31]);
                     iface.light_color.update([1.0, 1.0, 1.0]);
+                    iface.light_pos.update(lamp_pos);
+                    iface.cam_pos.update([cam_x, cam_y, cam_z]);
 
                     rdr_gate.render(RenderState::default(), |mut tess_gate| {
                         tess_gate.render(&cube_01);

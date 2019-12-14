@@ -1,10 +1,33 @@
+in vec3 v_frag_pos;
+in vec3 v_normal;
+
 out vec4 frag_color;
 
 uniform vec3 object_color;
 uniform vec3 light_color;
+uniform vec3 light_pos;
+uniform vec3 cam_pos;
 
 void main() {
-  frag_color = vec4(object_color * light_color, 1.0);
+  // Get ambient
+  vec3 ambient = 0.1 * light_color;
+
+  // Get diffuse
+  vec3 norm = normalize(v_normal);
+  vec3 light_dir = normalize(light_pos - v_frag_pos);
+  float diff = max(dot(norm, light_dir), 0.0);
+  vec3 diffuse = diff * light_color;
+
+  // Get specular
+  float spec_strength = 0.5;
+  vec3 view_dir = normalize(cam_pos - v_frag_pos);
+  vec3 reflect_dir = reflect(-light_dir, norm);
+  float spec = pow(max(dot(view_dir, reflect_dir), 0.0), 32);
+  vec3 specular = spec_strength * spec * light_color;
+
+  // Final fragment color
+  vec3 result = (ambient + diffuse + specular) * object_color;
+  frag_color = vec4(result, 1.0);
 }
 
 // Old
