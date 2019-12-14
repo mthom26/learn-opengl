@@ -41,13 +41,14 @@ impl Vertex {
 
 #[derive(UniformInterface)]
 pub struct ShaderInterface {
-    // A simple float ranging from 0.0 to 1.0 changing over time
-    #[uniform(unbound)]
-    pub time: Uniform<f32>,
-    pub tex: Uniform<&'static BoundTexture<'static, Flat, Dim2, NormUnsigned>>,
-    pub tex_smiley: Uniform<&'static BoundTexture<'static, Flat, Dim2, NormUnsigned>>,
     #[uniform(unbound)]
     pub model: Uniform<M44>,
     pub view: Uniform<M44>,
     pub proj: Uniform<M44>,
+
+    // Lighting
+    #[uniform(unbound)]
+    pub object_color: Uniform<[f32; 3]>,
+    #[uniform(unbound)]
+    pub light_color: Uniform<[f32; 3]>,
 }

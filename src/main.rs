@@ -1,4 +1,4 @@
-use std::{path::Path, time::Instant};
+use std::time::Instant;
 
 use luminance::{context::GraphicsContext, render_state::RenderState, shader::program::Program};
 use luminance_glutin::{
@@ -14,9 +14,9 @@ use ultraviolet::{
 mod rendering;
 use rendering::{Semantics, ShaderInterface};
 mod utils;
-use utils::{convert_mat4, load_texture_rgb, load_texture_rgba};
+use utils::convert_mat4;
 mod shapes;
-use shapes::{cube, quad, triangle};
+use shapes::cube;
 
 const WIDTH: u32 = 800;
 const HEIGHT: u32 = 600;
@@ -24,6 +24,7 @@ const HEIGHT: u32 = 600;
 // Shaders
 const VS: &str = include_str!("../shaders/vertex.glsl");
 const FS: &str = include_str!("../shaders/fragment.glsl");
+const LAMP_FS: &str = include_str!("../shaders/lamp_frag.glsl");
 
 fn main() {
     let mut surface = GlutinSurface::new(
@@ -35,26 +36,21 @@ fn main() {
 
     let back_buffer = surface.back_buffer().unwrap();
 
-    // Shader Program
+    // Shader Programs
     let program: Program<Semantics, (), ShaderInterface> =
         Program::from_strings(None, VS, None, FS)
             .expect("Could not create program.")
             .ignore_warnings();
 
-    // Triangle
-    let _triangle = triangle(&mut surface, None, 0.5);
-
-    // Quad
-    let _quad = quad(&mut surface, None, 0.5);
+    let lamp_program: Program<Semantics, (), ShaderInterface> =
+        Program::from_strings(None, VS, None, LAMP_FS)
+            .expect("Could not create program.")
+            .ignore_warnings();
 
     // Cube
-    let cube = cube(&mut surface, None, 0.5);
-
-    // Load textures
-    let (tex, _width, _height) =
-        load_texture_rgb(&mut surface, Path::new("assets/textures/container.jpg"));
-    let (smiley, _width, _height) =
-        load_texture_rgba(&mut surface, Path::new("assets/textures/awesomeface.png"));
+    let cube_01 = cube(&mut surface, None, 0.5);
+    // Lamp
+    let lamp = cube(&mut surface, None, 0.1);
 
     let t_start = Instant::now();
 
@@ -81,17 +77,13 @@ fn main() {
         }
 
         // Update state
-        let clear_color = [0.2, 0.3, 0.3, 1.0];
-        let t = {
-            // Value varies from 0.0 to 1.0
-            let t = t_start.elapsed().as_millis() as f32 / 1000.0;
-            t.sin().abs()
-        };
+        let clear_color = [0.2, 0.2, 0.2, 1.0];
+        let t: f32 = t_start.elapsed().as_millis() as f32 / 1000.0;
 
         //--- Get view and projection matrices ---//
 
         // Camera and View matrix
-        let cam_pos = Vec3::new(0.0, 0.0, 3.0);
+        let cam_pos = Vec3::new(1.2, 2.0, 5.0);
         let look_target = Vec3::new(0.0, 0.0, 0.0);
         let up = Vec3::new(0.0, 1.0, 0.0);
         let view = Mat4::look_at(cam_pos, look_target, up);
@@ -107,45 +99,69 @@ fn main() {
         let proj_mat = convert_mat4(projection);
         //-------------------------------------- -//
 
-        //--- Update transform state for cube ---//
-        let angle: f32 = t_start.elapsed().as_millis() as f32 / 1000.0 * 40.0;
-        let rot_vec = Vec3::new(0.5, -1.0, 0.0).normalized(); // Rotation axis
-        let bi_vec = Bivec3::from_normalized_axis(rot_vec);
-        let rot = Rotor3::from_angle_plane(angle.to_radians(), bi_vec);
+        //--- Update transform state for cube_01 ---//
+        let model_mat_cube_01 = {
+            let rot_vec = Vec3::new(0.5, -1.0, 0.0).normalized(); // Rotation axis
+            let bi_vec = Bivec3::from_normalized_axis(rot_vec);
+            let rot = Rotor3::from_angle_plane(0.0, bi_vec);
 
-        let _scale = 0.6;
-        let translate = Vec3::new(0.0, 0.0, 0.0);
+            let translate = Vec3::new(0.0, 0.0, 0.0);
 
-        let mut sim = Similarity3::identity();
-        // sim.prepend_scaling(scale); // Scaling not working here
-        sim.prepend_rotation(rot);
-        sim.append_translation(translate);
-        let model_mat = convert_mat4(sim.into_homogeneous_matrix());
+            let mut sim = Similarity3::identity();
+            sim.prepend_rotation(rot);
+            sim.append_translation(translate);
+            convert_mat4(sim.into_homogeneous_matrix())
+        };
+        //---------------------------------------//
+
+        //--- Update transform state for lamp ---//
+        let model_mat_lamp = {
+            let rot_vec = Vec3::new(0.5, -1.0, 0.0).normalized(); // Rotation axis
+            let bi_vec = Bivec3::from_normalized_axis(rot_vec);
+            let rot = Rotor3::from_angle_plane(0.0, bi_vec);
+
+            let translate = Vec3::new(1.2, 0.7, 0.5);
+
+            let mut sim = Similarity3::identity();
+            sim.prepend_rotation(rot);
+            sim.append_translation(translate);
+            convert_mat4(sim.into_homogeneous_matrix())
+        };
         //---------------------------------------//
 
         // Rendering
-        surface
-            .pipeline_builder()
-            .pipeline(&back_buffer, clear_color, |pipeline, mut shd_gate| {
-                let bound_tex = pipeline.bind_texture(&tex);
-                let bound_smiley = pipeline.bind_texture(&smiley);
-
+        surface.pipeline_builder().pipeline(
+            &back_buffer,
+            clear_color,
+            |_pipeline, mut shd_gate| {
+                // Cube
                 shd_gate.shade(&program, |iface, mut rdr_gate| {
-                    // Update the time uniform
-                    iface.time.update(t);
-                    // Update textures
-                    iface.tex.update(&bound_tex);
-                    iface.tex_smiley.update(&bound_smiley);
                     // Update model, view and projection matrices
-                    iface.model.update(model_mat);
+                    iface.model.update(model_mat_cube_01);
+                    iface.view.update(view_mat);
+                    iface.proj.update(proj_mat);
+                    // Update object and light color
+                    iface.object_color.update([1.0, 0.5, 0.31]);
+                    iface.light_color.update([1.0, 1.0, 1.0]);
+
+                    rdr_gate.render(RenderState::default(), |mut tess_gate| {
+                        tess_gate.render(&cube_01);
+                    });
+                });
+                // Lamp
+                shd_gate.shade(&lamp_program, |iface, mut rdr_gate| {
+                    // Update model, view and projection matrices
+                    iface.model.update(model_mat_lamp);
                     iface.view.update(view_mat);
                     iface.proj.update(proj_mat);
 
+                    // Object and light color not needed here
                     rdr_gate.render(RenderState::default(), |mut tess_gate| {
-                        tess_gate.render(&cube);
+                        tess_gate.render(&lamp);
                     });
                 });
-            });
+            },
+        );
 
         surface.swap_buffers();
     }
