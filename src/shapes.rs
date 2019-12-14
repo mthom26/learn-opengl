@@ -3,11 +3,11 @@ use luminance_glutin::GlutinSurface;
 
 use crate::rendering::Vertex;
 
-pub fn triangle(surface: &mut GlutinSurface, vertices: Option<&[Vertex]>) -> Tess {
+pub fn triangle(surface: &mut GlutinSurface, vertices: Option<&[Vertex]>, scale: f32) -> Tess {
     let default = [
-        Vertex::from([0.0, 0.5, 0.0], [230, 30, 30], [0.0, 0.0]),
-        Vertex::from([0.5, -0.5, 0.0], [30, 230, 30], [0.0, 0.0]),
-        Vertex::from([-0.5, -0.5, 0.0], [30, 30, 230], [0.0, 0.0]),
+        Vertex::from([0.0, scale, 0.0], [230, 30, 30], [0.0, 0.0]),
+        Vertex::from([scale, -scale, 0.0], [30, 230, 30], [0.0, 0.0]),
+        Vertex::from([-scale, -scale, 0.0], [30, 30, 230], [0.0, 0.0]),
     ];
 
     let verts = match vertices {
@@ -23,12 +23,12 @@ pub fn triangle(surface: &mut GlutinSurface, vertices: Option<&[Vertex]>) -> Tes
         .unwrap()
 }
 
-pub fn quad(surface: &mut GlutinSurface, vertices: Option<&[Vertex]>) -> Tess {
+pub fn quad(surface: &mut GlutinSurface, vertices: Option<&[Vertex]>, scale: f32) -> Tess {
     let default = [
-        Vertex::from([-0.5, -0.5, 0.0], [255, 0, 0], [0.0, 0.0]), // Bottom left
-        Vertex::from([0.5, -0.5, 0.0], [0, 255, 0], [1.0, 0.0]),  // Bottom right
-        Vertex::from([0.5, 0.5, 0.0], [255, 255, 0], [1.0, 1.0]), // Top right
-        Vertex::from([-0.5, 0.5, 0.0], [30, 30, 255], [0.0, 1.0]), // Top left
+        Vertex::from([-scale, -scale, 0.0], [255, 0, 0], [0.0, 0.0]), // Bottom left
+        Vertex::from([scale, -scale, 0.0], [0, 255, 0], [1.0, 0.0]),  // Bottom right
+        Vertex::from([scale, scale, 0.0], [255, 255, 0], [1.0, 1.0]), // Top right
+        Vertex::from([-scale, scale, 0.0], [30, 30, 255], [0.0, 1.0]), // Top left
     ];
 
     let verts = match vertices {
@@ -44,44 +44,44 @@ pub fn quad(surface: &mut GlutinSurface, vertices: Option<&[Vertex]>) -> Tess {
         .unwrap()
 }
 
-pub fn cube(surface: &mut GlutinSurface, vertices: Option<&[Vertex]>) -> Tess {
+pub fn cube(surface: &mut GlutinSurface, vertices: Option<&[Vertex]>, scale: f32) -> Tess {
     let default = [
-        Vertex::from([-0.5, -0.5, -0.5], [0, 0, 0], [0.0, 0.0]),
-        Vertex::from([0.5, -0.5, -0.5], [0, 0, 0], [1.0, 0.0]),
-        Vertex::from([0.5, 0.5, -0.5], [0, 0, 0], [1.0, 1.0]),
-        Vertex::from([0.5, 0.5, -0.5], [0, 0, 0], [1.0, 1.0]),
-        Vertex::from([-0.5, 0.5, -0.5], [0, 0, 0], [0.0, 1.0]),
-        Vertex::from([-0.5, -0.5, -0.5], [0, 0, 0], [0.0, 0.0]),
-        Vertex::from([-0.5, -0.5, 0.5], [0, 0, 0], [0.0, 0.0]),
-        Vertex::from([0.5, -0.5, 0.5], [0, 0, 0], [1.0, 0.0]),
-        Vertex::from([0.5, 0.5, 0.5], [0, 0, 0], [1.0, 1.0]),
-        Vertex::from([0.5, 0.5, 0.5], [0, 0, 0], [1.0, 1.0]),
-        Vertex::from([-0.5, 0.5, 0.5], [0, 0, 0], [0.0, 1.0]),
-        Vertex::from([-0.5, -0.5, 0.5], [0, 0, 0], [0.0, 0.0]),
-        Vertex::from([-0.5, 0.5, 0.5], [0, 0, 0], [1.0, 0.0]),
-        Vertex::from([-0.5, 0.5, -0.5], [0, 0, 0], [1.0, 1.0]),
-        Vertex::from([-0.5, -0.5, -0.5], [0, 0, 0], [0.0, 1.0]),
-        Vertex::from([-0.5, -0.5, -0.5], [0, 0, 0], [0.0, 1.0]),
-        Vertex::from([-0.5, -0.5, 0.5], [0, 0, 0], [0.0, 0.0]),
-        Vertex::from([-0.5, 0.5, 0.5], [0, 0, 0], [1.0, 0.0]),
-        Vertex::from([0.5, 0.5, 0.5], [0, 0, 0], [1.0, 0.0]),
-        Vertex::from([0.5, 0.5, -0.5], [0, 0, 0], [1.0, 1.0]),
-        Vertex::from([0.5, -0.5, -0.5], [0, 0, 0], [0.0, 1.0]),
-        Vertex::from([0.5, -0.5, -0.5], [0, 0, 0], [0.0, 1.0]),
-        Vertex::from([0.5, -0.5, 0.5], [0, 0, 0], [0.0, 0.0]),
-        Vertex::from([0.5, 0.5, 0.5], [0, 0, 0], [1.0, 0.0]),
-        Vertex::from([-0.5, -0.5, -0.5], [0, 0, 0], [0.0, 1.0]),
-        Vertex::from([0.5, -0.5, -0.5], [0, 0, 0], [1.0, 1.0]),
-        Vertex::from([0.5, -0.5, 0.5], [0, 0, 0], [1.0, 0.0]),
-        Vertex::from([0.5, -0.5, 0.5], [0, 0, 0], [1.0, 0.0]),
-        Vertex::from([-0.5, -0.5, 0.5], [0, 0, 0], [0.0, 0.0]),
-        Vertex::from([-0.5, -0.5, -0.5], [0, 0, 0], [0.0, 1.0]),
-        Vertex::from([-0.5, 0.5, -0.5], [0, 0, 0], [0.0, 1.0]),
-        Vertex::from([0.5, 0.5, -0.5], [0, 0, 0], [1.0, 1.0]),
-        Vertex::from([0.5, 0.5, 0.5], [0, 0, 0], [1.0, 0.0]),
-        Vertex::from([0.5, 0.5, 0.5], [0, 0, 0], [1.0, 0.0]),
-        Vertex::from([-0.5, 0.5, 0.5], [0, 0, 0], [0.0, 0.0]),
-        Vertex::from([-0.5, 0.5, -0.5], [0, 0, 0], [0.0, 1.0]),
+        Vertex::from([-scale, -scale, -scale], [0, 0, 0], [0.0, 0.0]),
+        Vertex::from([scale, -scale, -scale], [0, 0, 0], [1.0, 0.0]),
+        Vertex::from([scale, scale, -scale], [0, 0, 0], [1.0, 1.0]),
+        Vertex::from([scale, scale, -scale], [0, 0, 0], [1.0, 1.0]),
+        Vertex::from([-scale, scale, -scale], [0, 0, 0], [0.0, 1.0]),
+        Vertex::from([-scale, -scale, -scale], [0, 0, 0], [0.0, 0.0]),
+        Vertex::from([-scale, -scale, scale], [0, 0, 0], [0.0, 0.0]),
+        Vertex::from([scale, -scale, scale], [0, 0, 0], [1.0, 0.0]),
+        Vertex::from([scale, scale, scale], [0, 0, 0], [1.0, 1.0]),
+        Vertex::from([scale, scale, scale], [0, 0, 0], [1.0, 1.0]),
+        Vertex::from([-scale, scale, scale], [0, 0, 0], [0.0, 1.0]),
+        Vertex::from([-scale, -scale, scale], [0, 0, 0], [0.0, 0.0]),
+        Vertex::from([-scale, scale, scale], [0, 0, 0], [1.0, 0.0]),
+        Vertex::from([-scale, scale, -scale], [0, 0, 0], [1.0, 1.0]),
+        Vertex::from([-scale, -scale, -scale], [0, 0, 0], [0.0, 1.0]),
+        Vertex::from([-scale, -scale, -scale], [0, 0, 0], [0.0, 1.0]),
+        Vertex::from([-scale, -scale, scale], [0, 0, 0], [0.0, 0.0]),
+        Vertex::from([-scale, scale, scale], [0, 0, 0], [1.0, 0.0]),
+        Vertex::from([scale, scale, scale], [0, 0, 0], [1.0, 0.0]),
+        Vertex::from([scale, scale, -scale], [0, 0, 0], [1.0, 1.0]),
+        Vertex::from([scale, -scale, -scale], [0, 0, 0], [0.0, 1.0]),
+        Vertex::from([scale, -scale, -scale], [0, 0, 0], [0.0, 1.0]),
+        Vertex::from([scale, -scale, scale], [0, 0, 0], [0.0, 0.0]),
+        Vertex::from([scale, scale, scale], [0, 0, 0], [1.0, 0.0]),
+        Vertex::from([-scale, -scale, -scale], [0, 0, 0], [0.0, 1.0]),
+        Vertex::from([scale, -scale, -scale], [0, 0, 0], [1.0, 1.0]),
+        Vertex::from([scale, -scale, scale], [0, 0, 0], [1.0, 0.0]),
+        Vertex::from([scale, -scale, scale], [0, 0, 0], [1.0, 0.0]),
+        Vertex::from([-scale, -scale, scale], [0, 0, 0], [0.0, 0.0]),
+        Vertex::from([-scale, -scale, -scale], [0, 0, 0], [0.0, 1.0]),
+        Vertex::from([-scale, scale, -scale], [0, 0, 0], [0.0, 1.0]),
+        Vertex::from([scale, scale, -scale], [0, 0, 0], [1.0, 1.0]),
+        Vertex::from([scale, scale, scale], [0, 0, 0], [1.0, 0.0]),
+        Vertex::from([scale, scale, scale], [0, 0, 0], [1.0, 0.0]),
+        Vertex::from([-scale, scale, scale], [0, 0, 0], [0.0, 0.0]),
+        Vertex::from([-scale, scale, -scale], [0, 0, 0], [0.0, 1.0]),
     ];
 
     let verts = match vertices {

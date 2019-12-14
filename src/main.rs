@@ -42,13 +42,13 @@ fn main() {
             .ignore_warnings();
 
     // Triangle
-    let _triangle = triangle(&mut surface, None);
+    let _triangle = triangle(&mut surface, None, 0.5);
 
     // Quad
-    let _quad = quad(&mut surface, None);
+    let _quad = quad(&mut surface, None, 0.5);
 
     // Cube
-    let cube = cube(&mut surface, None);
+    let cube = cube(&mut surface, None, 0.5);
 
     // Load textures
     let (tex, _width, _height) =
@@ -89,9 +89,15 @@ fn main() {
         };
 
         //--- Get view and projection matrices ---//
-        let view = Mat4::from_translation(Vec3::new(0.0, 0.0, -3.0));
+
+        // Camera and View matrix
+        let cam_pos = Vec3::new(0.0, 0.0, 3.0);
+        let look_target = Vec3::new(0.0, 0.0, 0.0);
+        let up = Vec3::new(0.0, 1.0, 0.0);
+        let view = Mat4::look_at(cam_pos, look_target, up);
         let view_mat = convert_mat4(view);
 
+        // Projection
         let projection = perspective_gl(
             (45.0 as f32).to_radians(),
             WIDTH as f32 / HEIGHT as f32,
