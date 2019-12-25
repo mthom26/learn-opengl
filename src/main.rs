@@ -17,6 +17,8 @@ mod utils;
 use utils::convert_mat4;
 mod shapes;
 use shapes::cube;
+mod objects;
+use objects::Cube;
 
 const WIDTH: u32 = 800;
 const HEIGHT: u32 = 600;
@@ -48,7 +50,14 @@ fn main() {
             .ignore_warnings();
 
     // Cube
-    let cube_01 = cube(&mut surface, None, 0.5);
+    let cube_01 = Cube::new(
+        cube(&mut surface, None, 0.5),
+        [0.9, 0.9, 0.9], // [1.0, 0.5, 0.31],
+        [0.9, 0.9, 0.9], // [1.0, 0.5, 0.31],
+        [0.5, 0.5, 0.5], // [0.5, 0.5, 0.5],
+        10.0,
+    );
+
     // Lamp
     let lamp = cube(&mut surface, None, 0.1);
 
@@ -142,14 +151,24 @@ fn main() {
                     iface.model.update(model_mat_cube_01);
                     iface.view.update(view_mat);
                     iface.proj.update(proj_mat);
-                    // Update object and light color
-                    iface.object_color.update([1.0, 0.5, 0.31]);
-                    iface.light_color.update([1.0, 1.0, 1.0]);
+
+                    // Update object color
+                    iface.mat_amb.update(cube_01.mat.ambient);
+                    iface.mat_diff.update(cube_01.mat.diffuse);
+                    iface.mat_spec.update(cube_01.mat.specular);
+                    iface.mat_shininess.update(cube_01.mat.shininess);
+
+                    // Update light color
+                    iface.light_amb.update([0.15, 0.15, 0.2]);
+                    iface.light_diff.update([0.6, 0.6, 0.6]);
+                    iface.light_spec.update([0.9, 0.8, 0.7]);
                     iface.light_pos.update(lamp_pos);
+
+                    // Update camera position
                     iface.cam_pos.update([cam_x, cam_y, cam_z]);
 
                     rdr_gate.render(RenderState::default(), |mut tess_gate| {
-                        tess_gate.render(&cube_01);
+                        tess_gate.render(&cube_01.tess);
                     });
                 });
                 // Lamp

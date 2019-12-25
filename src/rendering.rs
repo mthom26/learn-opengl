@@ -47,10 +47,23 @@ pub struct ShaderInterface {
     pub proj: Uniform<M44>,
 
     // Lighting
+    // #[uniform(unbound)]
+    // pub object_color: Uniform<[f32; 3]>,
     #[uniform(unbound)]
-    pub object_color: Uniform<[f32; 3]>,
+    pub mat_amb: Uniform<[f32; 3]>,
     #[uniform(unbound)]
-    pub light_color: Uniform<[f32; 3]>,
+    pub mat_diff: Uniform<[f32; 3]>,
+    #[uniform(unbound)]
+    pub mat_spec: Uniform<[f32; 3]>,
+    #[uniform(unbound)]
+    pub mat_shininess: Uniform<f32>,
+
+    #[uniform(unbound)]
+    pub light_amb: Uniform<[f32; 3]>,
+    #[uniform(unbound)]
+    pub light_diff: Uniform<[f32; 3]>,
+    #[uniform(unbound)]
+    pub light_spec: Uniform<[f32; 3]>,
     #[uniform(unbound)]
     pub light_pos: Uniform<[f32; 3]>,
     #[uniform(unbound)]

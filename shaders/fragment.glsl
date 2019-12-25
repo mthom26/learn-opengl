@@ -3,30 +3,35 @@ in vec3 v_normal;
 
 out vec4 frag_color;
 
-uniform vec3 object_color;
-uniform vec3 light_color;
+uniform vec3 mat_amb;
+uniform vec3 mat_diff;
+uniform vec3 mat_spec;
+uniform float mat_shininess;
+
+uniform vec3 light_amb;
+uniform vec3 light_diff;
+uniform vec3 light_spec;
 uniform vec3 light_pos;
 uniform vec3 cam_pos;
 
 void main() {
   // Get ambient
-  vec3 ambient = 0.1 * light_color;
+  vec3 ambient = mat_amb * light_amb;
 
   // Get diffuse
   vec3 norm = normalize(v_normal);
   vec3 light_dir = normalize(light_pos - v_frag_pos);
   float diff = max(dot(norm, light_dir), 0.0);
-  vec3 diffuse = diff * light_color;
+  vec3 diffuse = diff * mat_diff * light_diff;
 
   // Get specular
-  float spec_strength = 0.5;
   vec3 view_dir = normalize(cam_pos - v_frag_pos);
   vec3 reflect_dir = reflect(-light_dir, norm);
-  float spec = pow(max(dot(view_dir, reflect_dir), 0.0), 32);
-  vec3 specular = spec_strength * spec * light_color;
+  float spec = pow(max(dot(view_dir, reflect_dir), 0.0), mat_shininess);
+  vec3 specular = spec * mat_spec * light_spec;
 
   // Final fragment color
-  vec3 result = (ambient + diffuse + specular) * object_color;
+  vec3 result = ambient + diffuse + specular;
   frag_color = vec4(result, 1.0);
 }
 
