@@ -1,6 +1,9 @@
 use std::time::Instant;
 
-use luminance::{context::GraphicsContext, render_state::RenderState, shader::program::Program};
+use luminance::{
+    context::GraphicsContext, pipeline::PipelineState, render_state::RenderState,
+    shader::program::Program,
+};
 use luminance_glutin::{
     ElementState, Event, GlutinSurface, KeyboardInput, Surface, VirtualKeyCode, WindowDim,
     WindowEvent, WindowOpt,
@@ -143,7 +146,7 @@ fn main() {
         // Rendering
         surface.pipeline_builder().pipeline(
             &back_buffer,
-            clear_color,
+            &PipelineState::default().set_clear_color(clear_color),
             |_pipeline, mut shd_gate| {
                 // Cube
                 shd_gate.shade(&program, |iface, mut rdr_gate| {
@@ -167,7 +170,7 @@ fn main() {
                     // Update camera position
                     iface.cam_pos.update([cam_x, cam_y, cam_z]);
 
-                    rdr_gate.render(RenderState::default(), |mut tess_gate| {
+                    rdr_gate.render(&RenderState::default(), |mut tess_gate| {
                         tess_gate.render(&cube_01.tess);
                     });
                 });
@@ -179,7 +182,7 @@ fn main() {
                     iface.proj.update(proj_mat);
 
                     // Object and light color not needed here
-                    rdr_gate.render(RenderState::default(), |mut tess_gate| {
+                    rdr_gate.render(&RenderState::default(), |mut tess_gate| {
                         tess_gate.render(&lamp);
                     });
                 });
